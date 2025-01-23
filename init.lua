@@ -50,6 +50,13 @@ require("lazy").setup({
       end,
     },
     {
+      "lukas-reineke/indent-blankline.nvim",
+      main = "ibl",
+      ---@module "ibl"
+      ---@type ibl.config
+      opts = {},
+    },
+    {
       "rcarriga/nvim-notify",
       config = function()
         local notify = require("notify")
@@ -92,10 +99,9 @@ require("lazy").setup({
       end,
     },
     {
-      "nvim-lualine/lualine.nvim",
-      dependencies = { "nvim-tree/nvim-web-devicons" },
+      "rebelot/heirline.nvim",
       config = function()
-        require("lualine").setup()
+        require("heirline").setup({})
       end,
     },
     {
