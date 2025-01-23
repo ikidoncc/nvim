@@ -92,10 +92,18 @@ require("lazy").setup({
       end,
     },
     {
+      "lewis6991/gitsigns.nvim",
+      opts = {
+        signs = {
+          add = { text = "+" },
+          change = { text = "~" },
+          delete = { text = "-" },
+        },
+      },
+    },
+    {
       "lukas-reineke/indent-blankline.nvim",
       main = "ibl",
-      ---@module "ibl"
-      ---@type ibl.config
       opts = {},
     },
     {
@@ -104,6 +112,28 @@ require("lazy").setup({
       dependencies = {
         "nvim-treesitter/nvim-treesitter",
         "nvim-tree/nvim-web-devicons"
+      },
+    },
+    {
+      "folke/noice.nvim",
+      event = "VeryLazy",
+      dependencies = {
+        "MunifTanjim/nui.nvim",
+        "rcarriga/nvim-notify",
+      },
+      opts = {
+        cmdline = {
+          view = "cmdline_popup",
+        },
+        popupmenu = {
+          enable = true,
+          backend = "nui",
+        },
+        presets = {
+          bottom_search = false,
+          command_palette = true,
+          long_message_to_split = true,
+        },
       },
     },
     {
@@ -150,8 +180,114 @@ require("lazy").setup({
     },
     {
       "rebelot/heirline.nvim",
+      dependencies = {
+        "nvim-tree/nvim-web-devicons",
+      },
       config = function()
-        require("heirline").setup({})
+        local heirline = require("heirline")
+        local conditions = require("heirline.conditions")
+        local utils = require("heirline.utils")
+
+        local ViMode = {
+          provider = function()
+            return " " .. vim.fn.mode():upper() .. " "
+          end,
+          hi = function()
+            local mode = vim.fn.mode()
+            local mode_colors = {
+              n = "red",
+              i = "gree",
+              v = "blue",
+              V = "blue",
+              c = "magenta",
+              t = "yellow",
+            }
+
+            return { fg = "black", bg = mode_colors[mode] or "white" }
+          end,
+        }
+
+        local FileName = {
+          provider = function()
+            return vim.fn.expand("%:t") .. " "
+          end,
+          h1 = { fg = "white", bg = "none" },
+        }
+
+        local FileType = {
+          provider = function()
+            return vim.bo.filetype:upper() .. " "
+          end,
+          h1 = { fg = "cyan", bg = "none" },
+        }
+
+        local Ruler = {
+          provider = function()
+            return string.format(" %3d:%-2d ", table.unpack(vim.api.nvim_win_get_cursor(0)))
+          end,
+          h1 = { fg = "yellow", bg = "none" },
+        }
+
+        local LspStatus = {
+          provider = function()
+            local clients = vim.lsp.get_active_clients({ bufnr = 0 })
+            if next(clients) then
+              return "LSP: Active"
+            else
+              return "LSP: Inactive"
+            end
+          end,
+          h1 = { fg = "magenta", bg = "none" },
+        }
+
+        local GitStatus = {
+          condition = conditions.is_git_repo,
+          provider = function()
+            local signs = vim.b.gitsigns_status_dict
+            if not signs then return "" end
+            return string.format("  %s | +%d ~%d -%d ", signs.head, signs.added, signs.changed, signs.removed)
+          end,
+          h1 = { fg = "orange", bg = "none" },
+        }
+
+        local Diagnostics = {
+          condition = conditions.has_diagnostics,
+          static = {
+            icons = { error = " ", warn = " ", info = " ", hint = " " },
+          },
+          provider = function(self)
+            local result = {}
+            for name, icon in pairs(self.icons) do
+              local count = vim.diagnostic.get(0, { severity = vim.diagnostic.severity[name:upper()] })
+              if #count > 0 then
+                table.insert(result, icon .. #count .. " ")
+              end
+            end
+            return table.concat(result, " ")
+          end,
+          hl = { fg = "red", bg = "none" },
+        }
+
+        local StatusLine = {
+          ViMode,
+          GitStatus,
+          FileName,
+          { provider = "%=" },
+          Diagnostics,
+          LspStatus,
+          FileType,
+          Ruler,
+        }
+
+        heirline.setup({
+          statusline = StatusLine,
+          opts = {
+            colors = {
+              fg = utils.get_highlight("Normal").fg,
+              bg = utils.get_highlight("StatusLine").bg,
+            },
+          },
+        })
       end,
     },
     {
