@@ -1,35 +1,35 @@
-vim.opt.number          = true
-vim.opt.relativenumber	= true
-vim.opt.shiftwidth      = 2
-vim.opt.tabstop		      = 2
-vim.opt.expandtab	      = true
-vim.opt.cursorline	    = true
-vim.opt.timeoutlen      = 1000
-vim.opt.swapfile        = false
-vim.opt.backup          = false
-vim.opt.incsearch       = true
-vim.opt.termguicolors   = true
-vim.opt.scrolloff       = 15
+vim.opt.number         = true
+vim.opt.relativenumber = true
+vim.opt.shiftwidth     = 2
+vim.opt.tabstop        = 2
+vim.opt.expandtab      = true
+vim.opt.cursorline     = true
+vim.opt.timeoutlen     = 1000
+vim.opt.swapfile       = false
+vim.opt.backup         = false
+vim.opt.incsearch      = true
+vim.opt.termguicolors  = true
+vim.opt.scrolloff      = 15
 
-vim.g.mapleader         = " "
+vim.g.mapleader        = " "
 
-local keymap = vim.keymap.set
+local keymap           = vim.keymap.set
 -- Save and exit
-keymap("n", "<leader>w", ":w<CR>", { desc = "Save file"  })
+keymap("n", "<leader>w", ":w<CR>", { desc = "Save file" })
 keymap("n", "<leader>q", ":q<CR>", { desc = "Close file" })
 
 -- Navigation between splits
-keymap("n", "<C-h>", "<C-w>h", { desc = "Move left"  })
+keymap("n", "<C-h>", "<C-w>h", { desc = "Move left" })
 keymap("n", "<C-l>", "<C-w>l", { desc = "Move right" })
-keymap("n", "<C-j>", "<C-w>j", { desc = "Move down"  })
-keymap("n", "<C-k>", "<C-w>k", { desc = "Move up"    })
+keymap("n", "<C-j>", "<C-w>j", { desc = "Move down" })
+keymap("n", "<C-k>", "<C-w>k", { desc = "Move up" })
 
 -- LSP Configurações Gerais
 keymap("n", "<Leader>li", vim.cmd.LspInfo, { desc = "LSP Info" })
-keymap("n", "<Leader>lI", function() require("null-ls").info() end, { desc = "None-ls Info" })
+-- keymap("n", "<Leader>lI", function() require("null-ls").info() end, { desc = "None-ls Info" })
 keymap("n", "K", vim.lsp.buf.hover, { desc = "Hover Document" })
 keymap("n", "<Leader>lf", vim.lsp.buf.format, { desc = "Format Document" })
-keymap("n", "<Leader>lS", ":AerialToggle<CR>", { desc = "Symbols Outline" })
+keymap("n", "<Leader>lS", ":AerialToggle<CR>", { desc = "Symbols Outline", silent = true })
 keymap("n", "<Leader>ld", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
 keymap("n", "<Leader>lD", vim.diagnostic.setqflist, { desc = "All Diagnostics" })
 keymap("n", "<Leader>la", vim.lsp.buf.code_action, { desc = "Code Actions" })
@@ -45,10 +45,14 @@ keymap("n", "<Leader>lR", vim.lsp.buf.references, { desc = "References" })
 -- Navegação de Diagnósticos
 keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Diagnostic Next" })
 keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Diagnostics Previous" })
-keymap("n", "]e", function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR }) end, { desc = "Diagnostic Error Next" })
-keymap("n", "[e", function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR }) end, { desc = "Diagnostic Error Previous" })
-keymap("n", "]w", function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN }) end, { desc = "Diagnostic Warning Next" })
-keymap("n", "[w", function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN }) end, { desc = "Diagnostic Warning Previous" })
+keymap("n", "]e", function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR }) end,
+  { desc = "Diagnostic Error Next" })
+keymap("n", "[e", function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR }) end,
+  { desc = "Diagnostic Error Previous" })
+keymap("n", "]w", function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN }) end,
+  { desc = "Diagnostic Warning Next" })
+keymap("n", "[w", function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN }) end,
+  { desc = "Diagnostic Warning Previous" })
 
 -- Navegação de Símbolos
 keymap("n", "]y", function() require("aerial").next() end, { desc = "Document Symbol Next" })
@@ -69,7 +73,7 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
   if vim.v.shell_error ~= 0 then
     vim.api.nvim_echo({
       { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-      { out, "WarningMsg" },
+      { out,                            "WarningMsg" },
       { "\nPress any key to exit..." },
     }, true, {})
     vim.fn.getchar()
@@ -81,7 +85,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   spec = {
     {
-      "rose-pine/neovim", 
+      "rose-pine/neovim",
       name = "rose-pine",
       config = function()
         vim.cmd("colorscheme rose-pine-moon")
@@ -93,6 +97,14 @@ require("lazy").setup({
       ---@module "ibl"
       ---@type ibl.config
       opts = {},
+    },
+    {
+      "stevearc/aerial.nvim",
+      opts = {},
+      dependencies = {
+        "nvim-treesitter/nvim-treesitter",
+        "nvim-tree/nvim-web-devicons"
+      },
     },
     {
       "rcarriga/nvim-notify",
@@ -240,7 +252,8 @@ require("lazy").setup({
           },
         })
 
-        vim.keymap.set("n", "<Leader>e", ":Neotree toggle<CR>", { desc = "Toggle Neo-tree", noremap = true, silent = true })
+        vim.keymap.set("n", "<Leader>e", ":Neotree toggle<CR>",
+          { desc = "Toggle Neo-tree", noremap = true, silent = true })
       end,
     },
     {
@@ -251,10 +264,10 @@ require("lazy").setup({
 
         configs.setup({
           ensure_installed = { "lua", "vim", "vimdoc", "go" },
-          auto_install  = true,
-          sync_install = false,
-          highlight = { enable = true },
-          indent = { enable = true },
+          auto_install     = true,
+          sync_install     = false,
+          highlight        = { enable = true },
+          indent           = { enable = true },
         })
       end,
     },
