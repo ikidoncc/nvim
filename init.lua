@@ -13,15 +13,53 @@ vim.opt.scrolloff       = 15
 
 vim.g.mapleader         = " "
 
+local keymap = vim.keymap.set
 -- Save and exit
-vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file"  })
-vim.keymap.set("n", "<leader>q", ":q<CR>", { desc = "Close file" })
+keymap("n", "<leader>w", ":w<CR>", { desc = "Save file"  })
+keymap("n", "<leader>q", ":q<CR>", { desc = "Close file" })
 
 -- Navigation between splits
-vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move left"  })
-vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move right" })
-vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move down"  })
-vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move up"    })
+keymap("n", "<C-h>", "<C-w>h", { desc = "Move left"  })
+keymap("n", "<C-l>", "<C-w>l", { desc = "Move right" })
+keymap("n", "<C-j>", "<C-w>j", { desc = "Move down"  })
+keymap("n", "<C-k>", "<C-w>k", { desc = "Move up"    })
+
+-- LSP Configurações Gerais
+keymap("n", "<Leader>li", vim.cmd.LspInfo, { desc = "LSP Info" })
+keymap("n", "<Leader>lI", function() require("null-ls").info() end, { desc = "None-ls Info" })
+keymap("n", "K", vim.lsp.buf.hover, { desc = "Hover Document" })
+keymap("n", "<Leader>lf", vim.lsp.buf.format, { desc = "Format Document" })
+keymap("n", "<Leader>lS", ":AerialToggle<CR>", { desc = "Symbols Outline" })
+keymap("n", "<Leader>ld", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
+keymap("n", "<Leader>lD", vim.diagnostic.setqflist, { desc = "All Diagnostics" })
+keymap("n", "<Leader>la", vim.lsp.buf.code_action, { desc = "Code Actions" })
+keymap("n", "<Leader>lA", vim.lsp.buf.code_action, { desc = "Source Code Actions" })
+keymap("n", "<Leader>lh", vim.lsp.buf.signature_help, { desc = "Signature Help" })
+keymap("n", "<Leader>lr", vim.lsp.buf.rename, { desc = "Rename" })
+
+-- Símbolos e Referências
+keymap("n", "<Leader>ls", vim.lsp.buf.document_symbol, { desc = "Document Symbols" })
+keymap("n", "<Leader>lG", vim.lsp.buf.workspace_symbol, { desc = "Workspace Symbols" })
+keymap("n", "<Leader>lR", vim.lsp.buf.references, { desc = "References" })
+
+-- Navegação de Diagnósticos
+keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Diagnostic Next" })
+keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Diagnostics Previous" })
+keymap("n", "]e", function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.ERROR }) end, { desc = "Diagnostic Error Next" })
+keymap("n", "[e", function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.ERROR }) end, { desc = "Diagnostic Error Previous" })
+keymap("n", "]w", function() vim.diagnostic.goto_next({ severity = vim.diagnostic.severity.WARN }) end, { desc = "Diagnostic Warning Next" })
+keymap("n", "[w", function() vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN }) end, { desc = "Diagnostic Warning Previous" })
+
+-- Navegação de Símbolos
+keymap("n", "]y", function() require("aerial").next() end, { desc = "Document Symbol Next" })
+keymap("n", "[y", function() require("aerial").prev() end, { desc = "Document Symbol Previous" })
+
+-- Navegação entre Definições e Declarações
+keymap("n", "gD", vim.lsp.buf.declaration, { desc = "Declaration" })
+keymap("n", "gy", vim.lsp.buf.type_definition, { desc = "Type Definition" })
+keymap("n", "gd", vim.lsp.buf.definition, { desc = "Definition" })
+keymap("n", "gI", vim.lsp.buf.implementation, { desc = "Implementation" })
+
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
