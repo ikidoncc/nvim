@@ -13,6 +13,16 @@ vim.opt.scrolloff       = 15
 
 vim.g.mapleader         = " "
 
+-- Save and exit
+vim.keymap.set("n", "<leader>w", ":w<CR>", { desc = "Save file"  })
+vim.keymap.set("n", "<leader>q", ":q<CR>", { desc = "Close file" })
+
+-- Navigation between splits
+vim.keymap.set("n", "<C-h>", "<C-w>h", { desc = "Move left"  })
+vim.keymap.set("n", "<C-l>", "<C-w>l", { desc = "Move right" })
+vim.keymap.set("n", "<C-j>", "<C-w>j", { desc = "Move down"  })
+vim.keymap.set("n", "<C-k>", "<C-w>k", { desc = "Move up"    })
+
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -32,12 +42,61 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({
   spec = {
-    { 
+    {
       "rose-pine/neovim", 
       name = "rose-pine",
       config = function()
         vim.cmd("colorscheme rose-pine-moon")
+      end,
+    },
+    {
+      "rcarriga/nvim-notify",
+      config = function()
+        local notify = require("notify")
+
+        notify.setup({
+          stages = "fade_in_slide_out",
+          timeout = 3000,
+          render = "default",
+        })
+
+        vim.notify = notify
+        vim.lsp.handlers["window/showMessage"] = function(_, result, ctx)
+          local client = vim.lsp.get_client_by_id(ctx.client_id)
+          local level = ({ "ERROR", "WARN", "INFO", "DEBUG" })[result.type]
+          vim.notify(result.message, level, { title = client.name })
+        end
       end
+    },
+    {
+      "williamboman/mason.nvim",
+      config = function()
+        require("mason").setup()
+      end,
+    },
+    {
+      "williamboman/mason-lspconfig.nvim",
+      config = function()
+        require("mason-lspconfig").setup({
+          ensure_installed = { "lua_ls", "gopls" }
+        })
+      end,
+    },
+    {
+      "neovim/nvim-lspconfig",
+      config = function()
+        local lspconfig = require("lspconfig")
+
+        lspconfig.lua_ls.setup({})
+        lspconfig.gopls.setup({})
+      end,
+    },
+    {
+      "nvim-lualine/lualine.nvim",
+      dependencies = { "nvim-tree/nvim-web-devicons" },
+      config = function()
+        require("lualine").setup()
+      end,
     },
     {
       "nvim-telescope/telescope.nvim",
@@ -49,7 +108,7 @@ require("lazy").setup({
         local telescope = require("telescope")
         local builtin = require("telescope.builtin")
         local actions = require("telescope.actions")
-        
+
         telescope.setup({
           defaults = {
             mappings = {
@@ -76,7 +135,9 @@ require("lazy").setup({
         vim.keymap.set("n", "<Leader>fh", builtin.help_tags, { desc = "Help Tags" })
         vim.keymap.set("n", "<Leader>fk", builtin.keymaps, { desc = "Keymaps" })
         vim.keymap.set("n", "<Leader>fm", builtin.man_pages, { desc = "Man Pages" })
-        --vim.keymap.set("n", "<Leader>fn", builtin.notifications, { desc = "Notifications" })
+        vim.keymap.set("n", "<Leader>fn", function()
+          telescope.extensions.notify.notify()
+        end, { desc = "Notifications" })
         vim.keymap.set("n", "<Leader>fo", builtin.oldfiles, { desc = "Old Files" })
         vim.keymap.set("n", "<Leader>fr", builtin.registers, { desc = "Registers" })
         vim.keymap.set("n", "<Leader>ft", builtin.colorscheme, { desc = "Colorschemes" })
@@ -90,11 +151,13 @@ require("lazy").setup({
         vim.keymap.set("n", "<Leader>gt", builtin.git_status, { desc = "Git Status" })
         vim.keymap.set("n", "<Leader>ls", builtin.lsp_document_symbols, { desc = "LSP Symbols" })
         vim.keymap.set("n", "<Leader>lG", builtin.lsp_workspace_symbols, { desc = "LSP Workspace Symbols" })
-      end
+
+        telescope.load_extension("notify")
+      end,
     },
     {
       "nvim-telescope/telescope-fzf-native.nvim",
-      build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release"
+      build = "cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release",
     },
     {
       "stevearc/dressing.nvim",
@@ -103,7 +166,7 @@ require("lazy").setup({
     {
       "windwp/nvim-autopairs",
       event = "InsertEnter",
-      config = true
+      config = true,
     },
     {
       "nvim-neo-tree/neo-tree.nvim",
@@ -112,7 +175,6 @@ require("lazy").setup({
         "nvim-lua/plenary.nvim",
         "nvim-tree/nvim-web-devicons",
         "MunifTanjim/nui.nvim",
-        -- "3rd/image.nvim",
       },
       config = function()
         require("neo-tree").setup({
@@ -129,9 +191,9 @@ require("lazy").setup({
               hide_by_name = {
                 ".git",
                 ".DS_Store"
-              }
-            } 
-          }
+              },
+            },
+          },
         })
 
         vim.keymap.set("n", "<Leader>e", ":Neotree toggle<CR>", { desc = "Toggle Neo-tree", noremap = true, silent = true })
@@ -144,12 +206,13 @@ require("lazy").setup({
         local configs = require("nvim-treesitter.configs")
 
         configs.setup({
-          ensure_installed = { "lua", "vim", "vimdoc", },
+          ensure_installed = { "lua", "vim", "vimdoc", "go" },
+          auto_install  = true,
           sync_install = false,
           highlight = { enable = true },
-          indent = { enable = true }
+          indent = { enable = true },
         })
-      end
+      end,
     },
     {
       "akinsho/toggleterm.nvim",
@@ -167,7 +230,7 @@ require("lazy").setup({
           direction = "float",
           float_opts = {
             border = "rounded"
-          }
+          },
         })
 
         local Terminal = require("toggleterm.terminal").Terminal
