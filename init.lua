@@ -1,3 +1,6 @@
+-- =============================
+-- Vim General Settings
+-- =============================
 vim.opt.number = true
 vim.opt.relativenumber = true
 vim.opt.shiftwidth = 2
@@ -11,21 +14,28 @@ vim.opt.incsearch = true
 vim.opt.termguicolors = true
 vim.opt.scrolloff = 15
 
+-- Defines the leader as space
 vim.g.mapleader = " "
 
+-- ==========================
+-- Keyboard Mappings
+-- ==========================
 local keymap = vim.keymap.set
 
 -- Save and exit
 keymap("n", "<leader>w", ":w<CR>", { desc = "Save file", silent = true })
 keymap("n", "<leader>q", ":q<CR>", { desc = "Close file", silent = true })
 
--- Navigation between splits
+-- Navigation between Splits
 keymap("n", "<C-h>", "<C-w>h", { desc = "Move left" })
 keymap("n", "<C-l>", "<C-w>l", { desc = "Move right" })
 keymap("n", "<C-j>", "<C-w>j", { desc = "Move down" })
 keymap("n", "<C-k>", "<C-w>k", { desc = "Move up" })
 
--- LSP Configurações Gerais
+-- ==========================
+-- LSP Settings
+-- ==========================
+-- General Shortcuts for LSP
 keymap("n", "<Leader>li", vim.cmd.LspInfo, { desc = "LSP Info" })
 keymap("n", "<Leader>lI", ":NullLsInfo<CR>", { desc = "None-ls Info", silent = true })
 keymap("n", "K", vim.lsp.buf.hover, { desc = "Hover Document" })
@@ -38,12 +48,12 @@ keymap("n", "<Leader>lA", vim.lsp.buf.code_action, { desc = "Source Code Actions
 keymap("n", "<Leader>lh", vim.lsp.buf.signature_help, { desc = "Signature Help" })
 keymap("n", "<Leader>lr", vim.lsp.buf.rename, { desc = "Rename" })
 
--- Símbolos e Referências
+-- Navigation between Symbols and References
 keymap("n", "<Leader>ls", vim.lsp.buf.document_symbol, { desc = "Document Symbols" })
 keymap("n", "<Leader>lG", vim.lsp.buf.workspace_symbol, { desc = "Workspace Symbols" })
 keymap("n", "<Leader>lR", vim.lsp.buf.references, { desc = "References" })
 
--- Navegação de Diagnósticos
+-- Navigation between Diagnostics
 keymap("n", "]d", vim.diagnostic.goto_next, { desc = "Diagnostic Next" })
 keymap("n", "[d", vim.diagnostic.goto_prev, { desc = "Diagnostics Previous" })
 keymap("n", "]e", function()
@@ -59,7 +69,7 @@ keymap("n", "[w", function()
 	vim.diagnostic.goto_prev({ severity = vim.diagnostic.severity.WARN })
 end, { desc = "Diagnostic Warning Previous" })
 
--- Navegação de Símbolos
+-- Navigation between Symbols
 keymap("n", "]y", function()
 	require("aerial").next()
 end, { desc = "Document Symbol Next" })
@@ -67,12 +77,15 @@ keymap("n", "[y", function()
 	require("aerial").prev()
 end, { desc = "Document Symbol Previous" })
 
--- Navegação entre Definições e Declarações
+-- Navigation between Declarations and References
 keymap("n", "gD", vim.lsp.buf.declaration, { desc = "Declaration" })
 keymap("n", "gy", vim.lsp.buf.type_definition, { desc = "Type Definition" })
 keymap("n", "gd", vim.lsp.buf.definition, { desc = "Definition" })
 keymap("n", "gI", vim.lsp.buf.implementation, { desc = "Implementation" })
 
+-- ==========================
+-- Lazy.nvim Configuration
+-- ==========================
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -90,6 +103,9 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- ==========================
+-- Plugin Configuration
+-- ==========================
 require("lazy").setup({
 	spec = {
 		{
@@ -471,4 +487,11 @@ require("lazy").setup({
 		},
 	},
 	checker = { enabled = true },
+  performance = {
+    rtp = {
+      disabled_plugins = {
+        "netrwPlugin"
+      }
+    }
+  }
 })
